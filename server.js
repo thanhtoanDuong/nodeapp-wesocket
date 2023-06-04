@@ -23,32 +23,32 @@ app.post('/api/users', (req, res) => {
   res.status(201).send('User created successfully');
 });
 
-// // Tạo một WebSocket server và liên kết nó đến HTTP server
-// const wss = new WebSocket.Server({ server });
+// Tạo một WebSocket server và liên kết nó đến HTTP server
+const wss = new WebSocket.Server({ server });
 
-// // Username of someone who is currently live
-// let tiktokUsername = "embe2309_";
+// Username of someone who is currently live
+let tiktokUsername = "toan_tok";
 
-// // Create a new wrapper object and pass the username
-// let tiktokLiveConnection = new WebcastPushConnection(tiktokUsername);
+// Create a new wrapper object and pass the username
+let tiktokLiveConnection = new WebcastPushConnection(tiktokUsername);
 
-// tiktokLiveConnection
-//   .connect()
-//   .then((state) => {
-//     console.info(`Connected to roomId ${state.roomId}`);
-//   })
-//   .catch((err) => {
-//     console.error("Failed to connect", err);
-//   });
+tiktokLiveConnection
+  .connect()
+  .then((state) => {
+    console.info(`Connected to roomId ${state.roomId}`);
+  })
+  .catch((err) => {
+    console.error("Failed to connect", err);
+  });
 
-//   tiktokLiveConnection.on("chat", (data) => {
-//       console.log(`${data.uniqueId} (userId:${data.userId}) writes: ${data.comment}`);
-//       wss.clients.forEach((client) => {
-//           if (client.readyState === WebSocket.OPEN) {
-//           client.send(JSON.stringify(data));
-//         }
-//       });
-//   });
+  tiktokLiveConnection.on("chat", (data) => {
+      console.log(`${data.uniqueId} (userId:${data.userId}) writes: ${data.comment}`);
+      wss.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify(data));
+        }
+      });
+  });
 
 // Khởi động HTTP server
 server.listen(3698, () => {
