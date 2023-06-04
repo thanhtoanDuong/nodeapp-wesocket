@@ -14,23 +14,33 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // Xử lý yêu cầu HTTP POST
-app.post('/api/users', (req, res) => {
-    console.log(req.body);
-//   const { name, email } = req.body;
-//   // Xử lý dữ liệu được gửi lên trong yêu cầu POST
-//   console.log(`Received POST request with name=${name} and email=${email}`);
-//   // Trả về phản hồi HTTP với mã trạng thái 201 (Created)
-  res.status(201).send('User created successfully');
+app.post("/api/users", (req, res) => {
+  console.log(req.body);
+  //   const { name, email } = req.body;
+  //   // Xử lý dữ liệu được gửi lên trong yêu cầu POST
+  //   console.log(`Received POST request with name=${name} and email=${email}`);
+  //   // Trả về phản hồi HTTP với mã trạng thái 201 (Created)
+  res.status(201).send("User created successfully");
 });
 
 // Tạo một WebSocket server và liên kết nó đến HTTP server
 const wss = new WebSocket.Server({ server });
 
 // Username of someone who is currently live
-let tiktokUsername = "toan_tok";
+let tiktokUsername = "bupbe120";
 
 // Create a new wrapper object and pass the username
 let tiktokLiveConnection = new WebcastPushConnection(tiktokUsername);
+
+const tiktokConnectionWrapper = (key) => {
+  tiktokLiveConnection.on(key, (data) => {
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify({ key: key, data }));
+      }
+    });
+  });
+};
 
 tiktokLiveConnection
   .connect()
@@ -41,14 +51,19 @@ tiktokLiveConnection
     console.error("Failed to connect", err);
   });
 
-  tiktokLiveConnection.on("chat", (data) => {
-      console.log(`${data.uniqueId} (userId:${data.userId}) writes: ${data.comment}`);
-      wss.clients.forEach((client) => {
-          if (client.readyState === WebSocket.OPEN) {
-          client.send(JSON.stringify(data));
-        }
-      });
+tiktokLiveConnection.on("chat", (data) => {
+  console.log(`${data.uniqueId} (userId:${data.userId}) writes: ${data.comment}`);
+  wss.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify({ key: "chat", data }));
+    }
   });
+});
+
+tiktokConnectionWrapper("member");
+tiktokConnectionWrapper("social");
+tiktokConnectionWrapper("roomUser");
+tiktokConnectionWrapper("gift");
 
 // Khởi động HTTP server
 server.listen(3698, () => {
