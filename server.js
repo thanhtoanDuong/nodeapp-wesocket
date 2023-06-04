@@ -15,16 +15,16 @@ const wss = new WebSocket.Server({ server });
 let count = 0;
 
 // Mỗi giây tăng biến đếm lên 1 giá trị
-setInterval(() => {
-    count++;
-    // console.log(count);
-  // Gửi giá trị đếm tới tất cả các kết nối WebSocket đang mở
-  wss.clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(count.toString());
-    }
-  });
-}, 2000);
+// setInterval(() => {
+//     count++;
+//     // console.log(count);
+//   // Gửi giá trị đếm tới tất cả các kết nối WebSocket đang mở
+//   wss.clients.forEach((client) => {
+//     if (client.readyState === WebSocket.OPEN) {
+//       client.send(count.toString());
+//     }
+//   });
+// }, 2000);
 
 // Username of someone who is currently live
 let tiktokUsername = "embe2309_";
@@ -42,7 +42,13 @@ tiktokLiveConnection
   });
 
   tiktokLiveConnection.on("chat", (data) => {
-    console.log(`${data.uniqueId} (userId:${data.userId}) writes: ${data.comment}`);
+      console.log(`${data.uniqueId} (userId:${data.userId}) writes: ${data.comment}`);
+      wss.clients.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            console.log(data, "3");
+          client.send(JSON.stringify(data));
+        }
+      });
   });
 
 // Khởi động HTTP server
