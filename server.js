@@ -27,7 +27,7 @@ app.post("/api/users", (req, res) => {
 const wss = new WebSocket.Server({ server });
 
 // Username of someone who is currently live
-let tiktokUsername = "bupbe120";
+let tiktokUsername = "he200496";
 
 // Create a new wrapper object and pass the username
 let tiktokLiveConnection = new WebcastPushConnection(tiktokUsername);
@@ -51,19 +51,12 @@ tiktokLiveConnection
     console.error("Failed to connect", err);
   });
 
-tiktokLiveConnection.on("chat", (data) => {
-  console.log(`${data.uniqueId} (userId:${data.userId}) writes: ${data.comment}`);
-  wss.clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify({ key: "chat", data }));
-    }
-  });
-});
-
+tiktokConnectionWrapper("chat");
 tiktokConnectionWrapper("member");
 tiktokConnectionWrapper("social");
 tiktokConnectionWrapper("roomUser");
 tiktokConnectionWrapper("gift");
+tiktokConnectionWrapper("like");
 
 // Khởi động HTTP server
 server.listen(3698, () => {
