@@ -1,6 +1,7 @@
 const express = require("express");
 const http = require("http");
 const WebSocket = require("ws");
+const { WebcastPushConnection } = require("tiktok-live-connector");
 
 const app = express();
 
@@ -24,6 +25,25 @@ setInterval(() => {
     }
   });
 }, 2000);
+
+// Username of someone who is currently live
+let tiktokUsername = "embe2309_";
+
+// Create a new wrapper object and pass the username
+let tiktokLiveConnection = new WebcastPushConnection(tiktokUsername);
+
+tiktokLiveConnection
+  .connect()
+  .then((state) => {
+    console.info(`Connected to roomId ${state.roomId}`);
+  })
+  .catch((err) => {
+    console.error("Failed to connect", err);
+  });
+
+  tiktokLiveConnection.on("chat", (data) => {
+    console.log(`${data.uniqueId} (userId:${data.userId}) writes: ${data.comment}`);
+  });
 
 // Khởi động HTTP server
 server.listen(3000, () => {
