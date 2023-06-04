@@ -1,5 +1,6 @@
 const express = require("express");
 const http = require("http");
+const bodyParser = require("body-parser");
 const WebSocket = require("ws");
 const { WebcastPushConnection } = require("tiktok-live-connector");
 
@@ -8,50 +9,48 @@ const app = express();
 // Tạo một HTTP server để phục vụ ứng dụng Express
 const server = http.createServer(app);
 
-// Tạo một WebSocket server và liên kết nó đến HTTP server
-const wss = new WebSocket.Server({ server });
+// Thiết lập middleware body-parser
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-// Khai báo biến đếm
-let count = 0;
+// Xử lý yêu cầu HTTP POST
+app.post('/api/users', (req, res) => {
+    console.log(req.body);
+//   const { name, email } = req.body;
+//   // Xử lý dữ liệu được gửi lên trong yêu cầu POST
+//   console.log(`Received POST request with name=${name} and email=${email}`);
+//   // Trả về phản hồi HTTP với mã trạng thái 201 (Created)
+  res.status(201).send('User created successfully');
+});
 
-// Mỗi giây tăng biến đếm lên 1 giá trị
-// setInterval(() => {
-//     count++;
-//     // console.log(count);
-//   // Gửi giá trị đếm tới tất cả các kết nối WebSocket đang mở
-//   wss.clients.forEach((client) => {
-//     if (client.readyState === WebSocket.OPEN) {
-//       client.send(count.toString());
-//     }
+// // Tạo một WebSocket server và liên kết nó đến HTTP server
+// const wss = new WebSocket.Server({ server });
+
+// // Username of someone who is currently live
+// let tiktokUsername = "embe2309_";
+
+// // Create a new wrapper object and pass the username
+// let tiktokLiveConnection = new WebcastPushConnection(tiktokUsername);
+
+// tiktokLiveConnection
+//   .connect()
+//   .then((state) => {
+//     console.info(`Connected to roomId ${state.roomId}`);
+//   })
+//   .catch((err) => {
+//     console.error("Failed to connect", err);
 //   });
-// }, 2000);
 
-// Username of someone who is currently live
-let tiktokUsername = "embe2309_";
-
-// Create a new wrapper object and pass the username
-let tiktokLiveConnection = new WebcastPushConnection(tiktokUsername);
-
-tiktokLiveConnection
-  .connect()
-  .then((state) => {
-    console.info(`Connected to roomId ${state.roomId}`);
-  })
-  .catch((err) => {
-    console.error("Failed to connect", err);
-  });
-
-  tiktokLiveConnection.on("chat", (data) => {
-      console.log(`${data.uniqueId} (userId:${data.userId}) writes: ${data.comment}`);
-      wss.clients.forEach((client) => {
-          if (client.readyState === WebSocket.OPEN) {
-            console.log(data, "3");
-          client.send(JSON.stringify(data));
-        }
-      });
-  });
+//   tiktokLiveConnection.on("chat", (data) => {
+//       console.log(`${data.uniqueId} (userId:${data.userId}) writes: ${data.comment}`);
+//       wss.clients.forEach((client) => {
+//           if (client.readyState === WebSocket.OPEN) {
+//           client.send(JSON.stringify(data));
+//         }
+//       });
+//   });
 
 // Khởi động HTTP server
-server.listen(3000, () => {
-  console.log("Server listening on port 3000");
+server.listen(3698, () => {
+  console.log("Server listening on port 3698");
 });
